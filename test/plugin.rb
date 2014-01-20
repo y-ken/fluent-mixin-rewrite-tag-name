@@ -1,0 +1,26 @@
+class Fluent::RewriteTagNameMixinOutput < Fluent::Output
+  Fluent::Plugin.register_output('rewrite_tag_name_mixin', self)
+
+  config_param :tag, :string, :default => nil
+
+  include Fluent::HandleTagNameMixin
+  include Fluent::Mixin::RewriteTagName
+
+  def configure(conf)
+    super
+    
+    if @tag.nil?
+      raise Fluent::ConfigError, "'tag' parameter is required."
+    end
+
+  end
+
+  def emit(tag, es, chain)
+    es.each do |time, record|
+      emit_tag = tag.dup
+      filter_record(emit_tag, time, record)
+      Fluent::Engine.emit(emit_tag, time, record)
+    end
+    chain.next
+  end
+end
