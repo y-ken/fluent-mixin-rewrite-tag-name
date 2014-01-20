@@ -2,12 +2,17 @@ module Fluent
   module Mixin
     module RewriteTagName
       include RecordFilterMixin
-      attr_accessor :tag
+      attr_accessor :tag, :hostname_command
+
+      DEFAULT_HOSTNAME_COMMAND = 'hostname'
 
       def configure(conf)
         super
 
+        hostname_command = @hostname_command || DEFAULT_HOSTNAME_COMMAND
+        hostname = `#{hostname_command}`.chomp
         @placeholder_expander = PlaceholderExpander.new
+        @placeholder_expander.setHostname(hostname)
       end
 
       def filter_record(tag, time, record)
@@ -42,6 +47,10 @@ module Fluent
         def setTag(value)
           setPlaceholder('tag', value)
           setTagParts(value)
+        end
+
+        def setHostname(value)
+          setPlaceholder('hostname', value)
         end
 
         def setTagParts(tag)

@@ -92,4 +92,36 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     assert_equal 'rewrited.foo.foo', emits[0][0] # tag
     assert_equal 'foo', emits[0][2]['message']
   end
+
+  def test_emit_hostname
+    d1 = create_driver(%[
+      tag                rewrited.${hostname}.__HOSTNAME__
+    ], 'input.access')
+    d1.run do
+      d1.emit({'message' => 'foo'})
+    end
+    emits = d1.emits
+    assert_equal 1, emits.length
+    p emits[0]
+    hostname = `hostname`.chomp
+    assert_equal "rewrited.#{hostname}.#{hostname}", emits[0][0] # tag
+    assert_equal 'foo', emits[0][2]['message']
+  end
+
+  def test_emit_hostname_short
+    d1 = create_driver(%[
+      tag                rewrited.${hostname}.__HOSTNAME__
+      hostname_command   hostname -s
+    ], 'input.access')
+    d1.run do
+      d1.emit({'message' => 'foo'})
+    end
+    emits = d1.emits
+    assert_equal 1, emits.length
+    p emits[0]
+    hostname_command = d1.instance.config['hostname_command']
+    hostname = `#{hostname_command}`.chomp
+    assert_equal "rewrited.#{hostname}.#{hostname}", emits[0][0] # tag
+    assert_equal 'foo', emits[0][2]['message']
+  end
 end
