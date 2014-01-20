@@ -12,7 +12,7 @@ module Fluent
         hostname_command = @hostname_command || DEFAULT_HOSTNAME_COMMAND
         hostname = `#{hostname_command}`.chomp
         @placeholder_expander = PlaceholderExpander.new
-        @placeholder_expander.setHostname(hostname)
+        @placeholder_expander.set_hostname(hostname)
       end
 
       def filter_record(tag, time, record)
@@ -23,7 +23,7 @@ module Fluent
       end
 
       def rewrite_tag!(tag)
-        @placeholder_expander.setTag(tag)
+        @placeholder_expander.set_tag(tag)
         emit_tag = @placeholder_expander.expand(@tag)
         tag.gsub!(tag, emit_tag)
       end
@@ -44,26 +44,26 @@ module Fluent
           }
         end
 
-        def setTag(value)
-          setPlaceholder('tag', value)
-          setTagParts(value)
+        def set_tag(value)
+          set_placeholder('tag', value)
+          set_tag_parts(value)
         end
 
-        def setHostname(value)
-          setPlaceholder('hostname', value)
+        def set_hostname(value)
+          set_placeholder('hostname', value)
         end
 
-        def setTagParts(tag)
+        def set_tag_parts(tag)
           tag_parts = tag.split('.') 
           size = tag_parts.size
           tag_parts.each_with_index { |t, idx|
-            setPlaceholder("tag_parts[#{idx}]", t)
-            setPlaceholder("tag_parts[#{idx-size}]", t) # support tag_parts[-1]
+            set_placeholder("tag_parts[#{idx}]", t)
+            set_placeholder("tag_parts[#{idx-size}]", t) # support tag_parts[-1]
           }
         end
 
         private
-        def setPlaceholder(key, value)
+        def set_placeholder(key, value)
           @placeholders.store("${#{key.downcase}}", value)
           @placeholders.store("__#{key.upcase}__", value)
         end
