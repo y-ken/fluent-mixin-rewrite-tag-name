@@ -2,7 +2,7 @@
 
 ## Overview
 
-Fluentd mixin plugin to rewrite tag like [rewrite-tag-filter](https://github.com/fluent/fluent-plugin-rewrite-tag-filter). It will let you get easy to implement rewrite tag logic to your any plugins.
+Fluentd mixin plugin to rewrite tag like placeholder function of [rewrite-tag-filter](https://github.com/fluent/fluent-plugin-rewrite-tag-filter). It will let you get easy to implement rewrite tag logic to your any plugins.
 
 ## Placeholders
 
@@ -53,6 +53,8 @@ Adding this mixin plugin, it will enabled to use these placeholder in your plugi
 </match>
 ```
 
+Another examples are written in [unit test](https://github.com/y-ken/fluent-mixin-rewrite-tag-name/blob/master/test/mixin/test_rewrite_tag_name.rb).
+
 ## Usage
 
 #### 1. edit gemspec
@@ -76,10 +78,12 @@ $ bundle install --path vendor/bundle # or just type `bundle install`
 #### 3. edit your plugin to implement
 
 It is a quick guide to enable your plugin to use RewriteTagNameMixin.  
-The key points of implmentation is just three below.
+The key points of implmentation is just four below.
 
 * add `require 'fluent/mixin/rewrite_tag_name'` at the top of source
-* add `include Fluent::Mixin::RewriteTagName` in class
+* in the case of output plugin, add `include Fluent::HandleTagNameMixin`  
+this is required if you will use 'remove_tag_prefix' option together
+* add `include Fluent::Mixin::RewriteTagName` in class after HandleTagNameMixin
 * add `emit_tag = tag.dup` and `filter_record(emit_tag, time, record)` before `Engine.emit`
 
 ##### implement example for input plugin
@@ -93,7 +97,8 @@ module Fluent
 
     # ...snip...
 
-    include Fluent::Mixin::RewriteTagName
+    include Fluent::HandleTagNameMixin
+    include Fluent::Mixin::RewriteTagName    
     config_param :hostname_command, :string, :default => 'hostname'
 
     # ...snip...
@@ -165,7 +170,7 @@ class Fluent
 end
 ```
 
-## case study
+## Case Study
 
 These cool plugins are using this mixin!
 
