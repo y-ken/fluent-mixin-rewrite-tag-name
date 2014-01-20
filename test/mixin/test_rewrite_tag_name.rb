@@ -51,4 +51,45 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     assert_equal 'rewrited.access', emits[0][0] # tag
     assert_equal 'foo', emits[0][2]['message']
   end
+
+  def test_emit_tag_parts
+    d1 = create_driver(%[
+      tag                rewrited.${tag_parts[1]}.__TAG_PARTS[1]__
+    ], 'input.access.foo.bar')
+    d1.run do
+      d1.emit({'message' => 'foo'})
+    end
+    emits = d1.emits
+    assert_equal 1, emits.length
+    p emits[0]
+    assert_equal 'rewrited.access.access', emits[0][0] # tag
+  end
+
+  def test_emit_tag_parts_negative
+    d1 = create_driver(%[
+      tag                rewrited.${tag_parts[-1]}.__TAG_PARTS[-1]__
+    ], 'input.access.foo.bar')
+    d1.run do
+      d1.emit({'message' => 'foo'})
+    end
+    emits = d1.emits
+    assert_equal 1, emits.length
+    p emits[0]
+    assert_equal 'rewrited.bar.bar', emits[0][0] # tag
+    assert_equal 'foo', emits[0][2]['message']
+  end
+
+  def test_emit_tag_parts_negative2
+    d1 = create_driver(%[
+      tag                rewrited.${tag_parts[-2]}.__TAG_PARTS[-2]__
+    ], 'input.access.foo.bar')
+    d1.run do
+      d1.emit({'message' => 'foo'})
+    end
+    emits = d1.emits
+    assert_equal 1, emits.length
+    p emits[0]
+    assert_equal 'rewrited.foo.foo', emits[0][0] # tag
+    assert_equal 'foo', emits[0][2]['message']
+  end
 end

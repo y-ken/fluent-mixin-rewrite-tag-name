@@ -4,6 +4,12 @@ module Fluent
       include RecordFilterMixin
       attr_accessor :tag
 
+      def configure(conf)
+        super
+
+        @placeholder_expander = PlaceholderExpander.new
+      end
+
       def filter_record(tag, time, record)
         super
         if @tag
@@ -12,15 +18,46 @@ module Fluent
       end
 
       def rewrite_tag!(tag)
-        placeholder = {
-          '${tag}' => tag,
-          '__TAG__' => tag
-        }
-        emit_tag = @tag.gsub(/(\${[a-z_]+(\[[0-9]+\])?}|__[A-Z_]+__)/) do
-          $log.warn "RewriteTagNameMixin: unknown placeholder found. :placeholder=>#{$1} :tag=>#{tag} :rewritetag=>#{rewritetag}" unless placeholder.include?($1)
-          placeholder[$1]
-        end
+        @placeholder_expander.setTag(tag)
+        emit_tag = @placeholder_expander.expand(@tag)
         tag.gsub!(tag, emit_tag)
+      end
+
+      class PlaceholderExpander
+        # referenced https://github.com/fluent/fluent-plugin-rewrite-tag-filter, thanks!
+        # referenced https://github.com/sonots/fluent-plugin-record-reformer, thanks!
+        attr_reader :placeholders
+
+        def initialize
+          @placeholders = {}
+        end
+
+        def expand(str)
+          str.gsub(/(\${[a-z_]+(\[-?[0-9]+\])?}|__[A-Z_]+(\[-?[0-9]+\])?__)/) {
+            $log.warn "RewriteTagNameMixin: unknown placeholder `#{$1}` found" unless @placeholders.include?($1)
+            @placeholders[$1]
+          }
+        end
+
+        def setTag(value)
+          setPlaceholder('tag', value)
+          setTagParts(value)
+        end
+
+        def setTagParts(tag)
+          tag_parts = tag.split('.') 
+          size = tag_parts.size
+          tag_parts.each_with_index { |t, idx|
+            setPlaceholder("tag_parts[#{idx}]", t)
+            setPlaceholder("tag_parts[#{idx-size}]", t) # support tag_parts[-1]
+          }
+        end
+
+        private
+        def setPlaceholder(key, value)
+          @placeholders.store("${#{key.downcase}}", value)
+          @placeholders.store("__#{key.upcase}__", value)
+        end
       end
     end
   end
