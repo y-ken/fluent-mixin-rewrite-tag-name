@@ -9,10 +9,9 @@ class Fluent::RewriteTagNameMixinOutput < Fluent::Output
   def configure(conf)
     super
     
-    if @tag.nil?
-      raise Fluent::ConfigError, "'tag' parameter is required."
+    if ( !@tag && !@remove_tag_prefix && !@remove_tag_suffix && !@add_tag_prefix && !@add_tag_suffix )
+      raise Fluent::ConfigError, "RewriteTagNameMixin: missing remove_tag_prefix, remove_tag_suffix, add_tag_prefix or add_tag_suffix."
     end
-
   end
 
   def emit(tag, es, chain)
