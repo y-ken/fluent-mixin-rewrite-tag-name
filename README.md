@@ -10,6 +10,9 @@ TODO
 
 ## TODO
 
+* support tag_parts placeholder
+* support hostname placeholder
+* support tag_prefix and tag_suffix placeholder
 * merge into [fluentd/lib/fluent/mixin.rb](https://github.com/fluent/fluentd/blob/master/lib/fluent/mixin.rb) as RewriteTagNameMixin module.
 
 Pull requests are very welcome!!
