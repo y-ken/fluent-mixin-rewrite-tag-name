@@ -2,7 +2,7 @@
 
 ## Overview
 
-Fluentd mixin plugin to rewrite tag like placeholder function of [rewrite-tag-filter](https://github.com/fluent/fluent-plugin-rewrite-tag-filter). It will let you get easy to implement rewrite tag logic to your any plugins.
+Fluentd mixin plugin to provides placeholder function for rewriting tag for your any plugins as like [fluent-plugin-rewrite-tag-filter](https://github.com/fluent/fluent-plugin-rewrite-tag-filter). It will let you get easy to implement tag placeholder for your own plugins.
 
 ## Placeholders
 
