@@ -37,6 +37,22 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     assert_equal 'foo', emits[0][2]['message']
   end
 
+  def test_emit_upcase
+    d1 = create_driver(%[
+      tag                rewrited.__TAG__
+      remove_tag_prefix  input.
+      enable_placeholder_upcase true
+    ], 'input.access')
+    d1.run do
+      d1.emit({'message' => 'foo'})
+    end
+    emits = d1.emits
+    assert_equal 1, emits.length
+    p emits[0]
+    assert_equal 'rewrited.access', emits[0][0] # tag
+    assert_equal 'foo', emits[0][2]['message']
+  end
+
   def test_emit_with_HandleTagNameMixin
     d1 = create_driver(%[
       tag                rewrited.${tag}

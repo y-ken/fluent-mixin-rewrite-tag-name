@@ -6,6 +6,8 @@ class Fluent::RewriteTagNameMixinOutput < Fluent::Output
 
   include Fluent::HandleTagNameMixin
   include Fluent::Mixin::RewriteTagName
+  config_set_default :enable_placeholder_upcase, false
+  config_set_default :enable_placeholder_hostname, true
 
   def configure(conf)
     super

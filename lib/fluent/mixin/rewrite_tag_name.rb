@@ -3,16 +3,31 @@ module Fluent
     module RewriteTagName
       include RecordFilterMixin
       attr_accessor :tag, :hostname_command
+      attr_accessor :enable_placeholder_upcase, :enable_placeholder_hostname
 
       DEFAULT_HOSTNAME_COMMAND = 'hostname'
 
       def configure(conf)
         super
 
-        hostname_command = @hostname_command || DEFAULT_HOSTNAME_COMMAND
-        hostname = `#{hostname_command}`.chomp
         @placeholder_expander = PlaceholderExpander.new
-        @placeholder_expander.set_hostname(hostname)
+
+        if enable_upcase = conf['enable_placeholder_upcase']
+          @enable_placeholder_upcase = enable_upcase
+        end
+        if @enable_placeholder_upcase
+          @placeholder_expander.enable_placeholder_upcase
+        end
+
+        if enable_hostname = conf['enable_placeholder_hostname']
+          @enable_placeholder_hostname = enable_hostname
+        end
+        if @enable_placeholder_hostname
+          hostname_command = @hostname_command || DEFAULT_HOSTNAME_COMMAND
+          hostname = `#{hostname_command}`.chomp
+          @placeholder_expander.enable_placeholder_hostname
+          @placeholder_expander.set_hostname(hostname)
+        end
       end
 
       def filter_record(tag, time, record)
@@ -23,6 +38,7 @@ module Fluent
       end
 
       def rewrite_tag!(tag)
+
         @placeholder_expander.set_tag(tag)
         emit_tag = @placeholder_expander.expand(@tag)
         tag.gsub!(tag, emit_tag)
@@ -35,6 +51,10 @@ module Fluent
 
         def initialize
           @placeholders = {}
+          @enable_options = {
+            :hostname => false,
+            :upcase => false,
+          }
         end
 
         def expand(str)
@@ -42,6 +62,14 @@ module Fluent
             $log.warn "RewriteTagNameMixin: unknown placeholder `#{$1}` found" unless @placeholders.include?($1)
             @placeholders[$1]
           }
+        end
+
+        def enable_placeholder_hostname
+          @enable_options[:hostname] = true
+        end
+
+        def enable_placeholder_upcase
+          @enable_options[:upcase] = true
         end
 
         def set_tag(value)
@@ -65,7 +93,7 @@ module Fluent
         private
         def set_placeholder(key, value)
           @placeholders.store("${#{key.downcase}}", value)
-          @placeholders.store("__#{key.upcase}__", value)
+          @placeholders.store("__#{key.upcase}__", value) if @enable_options[:upcase]
         end
       end
     end

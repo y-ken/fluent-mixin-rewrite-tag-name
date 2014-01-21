@@ -6,7 +6,7 @@ Fluentd mixin plugin to rewrite tag like placeholder function of [rewrite-tag-fi
 
 ## Placeholders
 
-It has supported these placeholder for rewrited tag.
+It supportes these placeholder for rewriting tag.
 
 - `${tag}`
 - `__TAG__`
@@ -18,7 +18,11 @@ It has supported these placeholder for rewrited tag.
 The placeholder of `{$tag_parts[n]}` and `__TAG_PARTS[n]__` acts accessing the index which split the tag with "." (dot).  
 For example with `td.apache.access` tag, it will get `td` by `${tag_parts[0]}` and `apache` by `${tag_parts[1]}`.
 
-**Note** Currently, range expression ```${tag_parts[0..2]}``` is not supported.
+**Note** 
+
+* To support upcase placeholder, set `enable_placeholder_upcase true` in configuration.
+* To support hostname placeholder, set `enable_placeholder_upcase true` in configuration.
+* Currently, range expression ```${tag_parts[0..2]}``` is not supported.
 
 #### Placeholder Option
 
@@ -39,7 +43,10 @@ Adding this mixin plugin, it will enabled to use these placeholder in your plugi
 
   # it will be rewrited to be 'customprefix.web10-222' when short hostname is 'web10-222'.
   tag               customprefix.${hostname}
-  hostname_command  hostname -s
+  
+  # to use hostname placeholder, set 'enable_placeholder_hostname true'
+  enable_placeholder_hostname  true
+  hostname_command             hostname -s
 </source>
 ```
 
@@ -178,6 +185,8 @@ These cool plugins are using this mixin!
 
 ## TODO
 
+* switchable tag template variable like 'tag', 'tag_format'
+* support range tag_parts like [fluent-plugin-forest](https://github.com/tagomoris/fluent-plugin-forest/compare/v0.2.2...master)
 * support tag_prefix and tag_suffix placeholder like [fluent-plugin-record-reformer](https://github.com/sonots/fluent-plugin-record-reformer)
 * merge into [fluentd/lib/fluent/mixin.rb](https://github.com/fluent/fluentd/blob/master/lib/fluent/mixin.rb) as RewriteTagNameMixin module.
 
