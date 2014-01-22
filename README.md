@@ -21,7 +21,6 @@ For example with `td.apache.access` tag, it will get `td` by `${tag_parts[0]}` a
 **Note** 
 
 * To support upcase placeholder, set `enable_placeholder_upcase true` in configuration.
-* To support hostname placeholder, set `enable_placeholder_upcase true` in configuration.
 * Currently, range expression ```${tag_parts[0..2]}``` is not supported.
 
 #### Placeholder Option
@@ -44,8 +43,7 @@ Adding this mixin plugin, it will enabled to use these placeholder in your plugi
   # it will be rewrited to be 'customprefix.web10-222' when short hostname is 'web10-222'.
   tag               customprefix.${hostname}
   
-  # to use hostname placeholder, set 'enable_placeholder_hostname true'
-  enable_placeholder_hostname  true
+  # to use short hostname placeholder, add option like below.
   hostname_command             hostname -s
 </source>
 ```

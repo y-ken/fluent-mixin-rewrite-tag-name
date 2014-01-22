@@ -3,7 +3,7 @@ module Fluent
     module RewriteTagName
       include RecordFilterMixin
       attr_accessor :tag, :hostname_command
-      attr_accessor :enable_placeholder_upcase, :enable_placeholder_hostname
+      attr_accessor :enable_placeholder_upcase
 
       DEFAULT_HOSTNAME_COMMAND = 'hostname'
 
@@ -19,15 +19,9 @@ module Fluent
           @placeholder_expander.enable_placeholder_upcase
         end
 
-        if enable_hostname = conf['enable_placeholder_hostname']
-          @enable_placeholder_hostname = enable_hostname
-        end
-        if @enable_placeholder_hostname
-          hostname_command = @hostname_command || DEFAULT_HOSTNAME_COMMAND
-          hostname = `#{hostname_command}`.chomp
-          @placeholder_expander.enable_placeholder_hostname
-          @placeholder_expander.set_hostname(hostname)
-        end
+        hostname_command = @hostname_command || DEFAULT_HOSTNAME_COMMAND
+        hostname = `#{hostname_command}`.chomp
+        @placeholder_expander.set_hostname(hostname)
       end
 
       def filter_record(tag, time, record)
@@ -52,7 +46,6 @@ module Fluent
         def initialize
           @placeholders = {}
           @enable_options = {
-            :hostname => false,
             :upcase => false,
           }
         end
@@ -62,10 +55,6 @@ module Fluent
             $log.warn "RewriteTagNameMixin: unknown placeholder `#{$1}` found" unless @placeholders.include?($1)
             @placeholders[$1]
           }
-        end
-
-        def enable_placeholder_hostname
-          @enable_options[:hostname] = true
         end
 
         def enable_placeholder_upcase
