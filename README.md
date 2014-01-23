@@ -182,9 +182,6 @@ These cool plugins are using this mixin!
 
 ## TODO
 
-* switchable tag template variable like 'tag', 'tag_format'
-* support range tag_parts like [fluent-plugin-forest](https://github.com/tagomoris/fluent-plugin-forest/compare/v0.2.2...master)
-* support tag_prefix and tag_suffix placeholder like [fluent-plugin-record-reformer](https://github.com/sonots/fluent-plugin-record-reformer)
 * merge into [fluentd/lib/fluent/mixin.rb](https://github.com/fluent/fluentd/blob/master/lib/fluent/mixin.rb) as RewriteTagNameMixin module.
 
 Pull requests are very welcome!!
