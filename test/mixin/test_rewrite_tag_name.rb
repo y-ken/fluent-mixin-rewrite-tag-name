@@ -64,65 +64,6 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     assert_equal 'foo', emits[0][2]['message']
   end
 
-  def test_emit_tag_parts
-    d1 = create_driver(%[
-      tag                rewrited.${tag_parts[1]}
-    ], 'input.access.foo.bar')
-    d1.run do
-      d1.emit({'message' => 'foo'})
-    end
-    emits = d1.emits
-    assert_equal 1, emits.length
-    assert_equal 'rewrited.access', emits[0][0] # tag
-  end
-
-  def test_emit_tag_parts_negative
-    d1 = create_driver(%[
-      tag                rewrited.${tag_parts[-1]}
-    ], 'input.access.foo.bar')
-    d1.run do
-      d1.emit({'message' => 'foo'})
-    end
-    emits = d1.emits
-    assert_equal 1, emits.length
-    assert_equal 'rewrited.bar', emits[0][0] # tag
-    assert_equal 'foo', emits[0][2]['message']
-  end
-
-  def test_emit_tag_parts_negative2
-    d1 = create_driver(%[
-      tag                rewrited.${tag_parts[-2]}
-    ], 'input.access.foo.bar')
-    d1.run do
-      d1.emit({'message' => 'foo'})
-    end
-    emits = d1.emits
-    assert_equal 1, emits.length
-    assert_equal 'rewrited.foo', emits[0][0] # tag
-    assert_equal 'foo', emits[0][2]['message']
-  end
-
-  def test_emit_tag_parts_dot_range
-    tag = '0.1.2.3.4'
-    rules = [
-      {:conf=>'tag rewrited.${tag_parts[0]}',       :expect_tag => 'rewrited.0'},
-      {:conf=>'tag rewrited.${tag_parts[1..1000]}', :expect_tag => 'rewrited.1.2.3.4'},
-      {:conf=>'tag rewrited.${tag_parts[0..2]}',    :expect_tag => 'rewrited.0.1.2'},
-      {:conf=>'tag rewrited.${tag_parts[0..-3]}',   :expect_tag => 'rewrited.0.1.2'},
-      {:conf=>'tag rewrited.${tag_parts[1..-2]}',   :expect_tag => 'rewrited.1.2.3'},
-      {:conf=>'tag rewrited.${tag_parts[-2..-1]}',  :expect_tag => 'rewrited.3.4'},
-    ]
-    rules.each do |rule|
-      d = create_driver(rule[:conf], tag)
-      d.run do
-        d.emit({'message' => 'foo'})
-      end
-      emits = d.emits
-      assert_equal 1, emits.length
-      assert_equal rule[:expect_tag], emits[0][0] # tag
-    end
-  end
-
   def test_emit_hostname
     d1 = create_driver(%[
       tag                rewrited.${hostname}
@@ -151,5 +92,30 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     hostname = `#{hostname_command}`.chomp
     assert_equal "rewrited.#{hostname}", emits[0][0] # tag
     assert_equal 'foo', emits[0][2]['message']
+  end
+
+  def test_emit_tag_parts
+    tag = '0.1.2.3.4'
+    rules = [
+      {:conf=>'tag rewrited.${tag_parts[0]}',       :expect_tag => 'rewrited.0'},
+      {:conf=>'tag rewrited.${tag_parts[1]}',       :expect_tag => 'rewrited.1'},
+      {:conf=>'tag rewrited.${tag_parts[-1]}',      :expect_tag => 'rewrited.4'},
+      {:conf=>'tag rewrited.${tag_parts[-2]}',      :expect_tag => 'rewrited.3'},
+      {:conf=>'tag rewrited.${tag_parts[1..1000]}', :expect_tag => 'rewrited.1.2.3.4'},
+      {:conf=>'tag rewrited.${tag_parts[0..2]}',    :expect_tag => 'rewrited.0.1.2'},
+      {:conf=>'tag rewrited.${tag_parts[0..-3]}',   :expect_tag => 'rewrited.0.1.2'},
+      {:conf=>'tag rewrited.${tag_parts[1..-2]}',   :expect_tag => 'rewrited.1.2.3'},
+      {:conf=>'tag rewrited.${tag_parts[-2..-1]}',  :expect_tag => 'rewrited.3.4'},
+    ]
+    rules.each do |rule|
+      d = create_driver(rule[:conf], tag)
+      d.run do
+        d.emit({'message' => 'foo'})
+      end
+      emits = d.emits
+      assert_equal 1, emits.length
+      assert_equal rule[:expect_tag], emits[0][0] # tag
+      assert_equal 'foo', emits[0][2]['message']
+    end
   end
 end
