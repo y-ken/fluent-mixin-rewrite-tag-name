@@ -32,7 +32,6 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     end
     emits = d1.emits
     assert_equal 1, emits.length
-    p emits[0]
     assert_equal 'rewrited.input.access', emits[0][0] # tag
     assert_equal 'foo', emits[0][2]['message']
   end
@@ -48,7 +47,6 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     end
     emits = d1.emits
     assert_equal 1, emits.length
-    p emits[0]
     assert_equal 'rewrited.access', emits[0][0] # tag
     assert_equal 'foo', emits[0][2]['message']
   end
@@ -63,7 +61,6 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     end
     emits = d1.emits
     assert_equal 1, emits.length
-    p emits[0]
     assert_equal 'rewrited.access', emits[0][0] # tag
     assert_equal 'foo', emits[0][2]['message']
   end
@@ -77,7 +74,6 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     end
     emits = d1.emits
     assert_equal 1, emits.length
-    p emits[0]
     assert_equal 'rewrited.access', emits[0][0] # tag
   end
 
@@ -90,7 +86,6 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     end
     emits = d1.emits
     assert_equal 1, emits.length
-    p emits[0]
     assert_equal 'rewrited.bar', emits[0][0] # tag
     assert_equal 'foo', emits[0][2]['message']
   end
@@ -104,7 +99,6 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     end
     emits = d1.emits
     assert_equal 1, emits.length
-    p emits[0]
     assert_equal 'rewrited.foo', emits[0][0] # tag
     assert_equal 'foo', emits[0][2]['message']
   end
@@ -139,7 +133,6 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     end
     emits = d1.emits
     assert_equal 1, emits.length
-    p emits[0]
     hostname = `hostname`.chomp
     assert_equal "rewrited.#{hostname}", emits[0][0] # tag
     assert_equal 'foo', emits[0][2]['message']
@@ -155,7 +148,6 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     end
     emits = d1.emits
     assert_equal 1, emits.length
-    p emits[0]
     hostname_command = d1.instance.config['hostname_command']
     hostname = `#{hostname_command}`.chomp
     assert_equal "rewrited.#{hostname}", emits[0][0] # tag
