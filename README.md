@@ -20,8 +20,7 @@ For example with `td.apache.access` tag, it will get `td` by `${tag_parts[0]}` a
 
 **Note** 
 
-* To support upcase placeholder, set `enable_placeholder_upcase true` in configuration.
-* Currently, range expression ```${tag_parts[0..2]}``` is not supported.
+* range expression ```${tag_parts[0..2]}``` is also supported. see [unit test](https://github.com/y-ken/fluent-mixin-rewrite-tag-name/blob/master/test/mixin/test_rewrite_tag_name.rb#L106).
 
 #### Placeholder Option
 

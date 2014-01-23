@@ -40,7 +40,6 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
     d1 = create_driver(%[
       tag                rewrited.__TAG__
       remove_tag_prefix  input.
-      enable_placeholder_upcase true
     ], 'input.access')
     d1.run do
       d1.emit({'message' => 'foo'})

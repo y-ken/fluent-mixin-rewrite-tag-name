@@ -3,7 +3,6 @@ module Fluent
     module RewriteTagName
       include RecordFilterMixin
       attr_accessor :tag, :hostname_command
-      attr_accessor :enable_placeholder_upcase
 
       DEFAULT_HOSTNAME_COMMAND = 'hostname'
 
@@ -11,14 +10,6 @@ module Fluent
         super
 
         @placeholder_expander = PlaceholderExpander.new
-
-        if enable_upcase = conf['enable_placeholder_upcase']
-          @enable_placeholder_upcase = enable_upcase
-        end
-        if @enable_placeholder_upcase
-          @placeholder_expander.enable_placeholder_upcase
-        end
-
         hostname_command = @hostname_command || DEFAULT_HOSTNAME_COMMAND
         hostname = `#{hostname_command}`.chomp
         @placeholder_expander.set_hostname(hostname)
@@ -46,9 +37,6 @@ module Fluent
         def initialize
           @tag = ''
           @placeholders = {}
-          @enable_options = {
-            :upcase => false,
-          }
         end
 
         def expand(str)
@@ -90,10 +78,6 @@ module Fluent
           tag_parts[range].join('.')
         end
 
-        def enable_placeholder_upcase
-          @enable_options[:upcase] = true
-        end
-
         def set_tag(value)
           @tag = value
           set_placeholder('tag', value)
@@ -103,19 +87,10 @@ module Fluent
           set_placeholder('hostname', value)
         end
 
-        def set_tag_parts(tag)
-          tag_parts = tag.split('.') 
-          size = tag_parts.size
-          tag_parts.each_with_index { |t, idx|
-            set_placeholder("tag_parts[#{idx}]", t)
-            set_placeholder("tag_parts[#{idx-size}]", t) # support tag_parts[-1]
-          }
-        end
-
         private
         def set_placeholder(key, value)
           @placeholders.store("${#{key.downcase}}", value)
-          @placeholders.store("__#{key.upcase}__", value) if @enable_options[:upcase]
+          @placeholders.store("__#{key.upcase}__", value)
         end
       end
     end
