@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "fluent-mixin-rewrite-tag-name"
-  spec.version       = "0.0.3"
+  spec.version       = "0.1.0"
   spec.authors       = ["Kentaro Yoshida"]
   spec.email         = ["y.ken.studio@gmail.com"]
   spec.summary       = %q{Fluentd mixin plugin to provides placeholder function for rewriting tag for your any plugins as like fluent-plugin-rewrite-tag-filter. It will let you get easy to implement tag placeholder for your own plugins.}
