@@ -32,18 +32,19 @@ module Fluent
       end
 
       def rewrite_tag!(tag)
-
         @placeholder_expander.set_tag(tag)
         emit_tag = @placeholder_expander.expand(@tag)
-        tag.gsub!(tag, emit_tag)
+        tag.sub!(tag, emit_tag)
       end
 
       class PlaceholderExpander
         # referenced https://github.com/fluent/fluent-plugin-rewrite-tag-filter, thanks!
         # referenced https://github.com/sonots/fluent-plugin-record-reformer, thanks!
+        # referenced https://github.com/tagomoris/fluent-plugin-forest, thanks!
         attr_reader :placeholders
 
         def initialize
+          @tag = ''
           @placeholders = {}
           @enable_options = {
             :upcase => false,
@@ -51,10 +52,42 @@ module Fluent
         end
 
         def expand(str)
-          str.gsub(/(\${[a-z_]+(\[-?[0-9]+\])?}|__[A-Z_]+(\[-?[0-9]+\])?__)/) {
-            $log.warn "RewriteTagNameMixin: unknown placeholder `#{$1}` found" unless @placeholders.include?($1)
-            @placeholders[$1]
-          }
+          str = str.gsub(/(\${(tag|hostname)}|__(TAG|HOSTNAME)__)/) do |name|
+            $log.warn "RewriteTagNameMixin: unknown placeholder `#{name}` found" unless @placeholders.include?(name)
+            @placeholders[name]
+          end
+          str = str.gsub(/__TAG_PARTS\[-?[0-9]+(?:\.\.\.?-?[0-9]+)?\]__|\$\{tag_parts\[-?[0-9]+(?:\.\.\.?-?[0-9]+)?\]\}/) do |tag_parts_offset|
+            expand_tag_parts(tag_parts_offset)
+          end
+        end
+
+        def expand_tag_parts(tag_parts_offset)
+          begin
+            position = /\[(?<first>-?[0-9]+)(?<range_part>(?<range_type>\.\.\.?)(?<last>-?[0-9]+))?\]/.match(tag_parts_offset)
+            raise "failed to parse offset even though matching tag_parts" unless position
+            tag_parts = @tag.split('.')
+            if position[:range_part]
+              extract_tag_part_range(tag_parts, position)
+            else
+              extract_tag_part_index(tag_parts, position)
+            end
+          rescue StandardError => e
+            $log.warn "RewriteTagNameMixin: failed to expand tag_parts. :message=>#{e.message} tag:#{@tag} placeholder:#{tag_parts_matched}"
+            nil
+          end
+        end
+
+        def extract_tag_part_index(tag_parts, position)
+          index = position[:first].to_i
+          raise "missing placeholder." unless tag_parts[index]
+          tag_parts[index]
+        end
+
+        def extract_tag_part_range(tag_parts, position)
+          exclude_end = (position[:range_type] == '...')
+          range = Range.new(position[:first].to_i, position[:last].to_i, exclude_end)
+          raise "missing placeholder." unless tag_parts[range]
+          tag_parts[range].join('.')
         end
 
         def enable_placeholder_upcase
@@ -62,8 +95,8 @@ module Fluent
         end
 
         def set_tag(value)
+          @tag = value
           set_placeholder('tag', value)
-          set_tag_parts(value)
         end
 
         def set_hostname(value)
