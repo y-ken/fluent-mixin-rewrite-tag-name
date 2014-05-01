@@ -21,7 +21,6 @@ class RewriteTagNameMixinTest < Test::Unit::TestCase
       d = create_driver('unknown_keys')
     }
     d = create_driver(CONFIG)
-    puts d.instance.inspect
     assert_equal 'rewrited.${tag}', d.instance.config['tag']
   end
 
