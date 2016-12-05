@@ -20,7 +20,7 @@ class Fluent::RewriteTagNameMixinOutput < Fluent::Output
     es.each do |time, record|
       emit_tag = tag.dup
       filter_record(emit_tag, time, record)
-      Fluent::Engine.emit(emit_tag, time, record)
+      router.emit(emit_tag, time, record)
     end
     chain.next
   end
